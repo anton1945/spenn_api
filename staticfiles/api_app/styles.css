@@ -1,0 +1,10 @@
+.form-bordered {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    width: 500px;
+}
+
+.form-control-custom-width {
+    width: 300px;  /* Adjust the width as needed */
+}

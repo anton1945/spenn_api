@@ -1,0 +1,20 @@
+{% extends 'api_app/login_base.html' %}
+
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-start mt-5" style="height: 150vh;">
+    <div class="card" style="width: 20rem;">
+        <div class="card-body">
+            <h5 class="card-title text-center">Login</h5>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

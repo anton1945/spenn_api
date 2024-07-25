@@ -1,0 +1,50 @@
+{% extends 'api_app/base.html' %}
+
+{% block title %}Transaction Request{% endblock %}
+
+{% block content %}
+    <h1>Make a Payment Request</h1>
+    <form method="post" class="mt-4 form-bordered">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.phone_number.label_tag }}<br>
+            {{ form.phone_number }}
+        </div>
+        <div class="form-group">
+            {{ form.amount.label_tag }}<br>
+            {{ form.amount }}
+        </div>
+        <div class="form-group">
+            {{ form.message.label_tag }}<br>
+            {{ form.message }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    {% if response_data %}
+        <h2 class="mt-5">Response Data</h2>
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Request ID</th>
+                    <th>Status</th>
+                    <th>External Reference</th>
+                    <th>Response ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ response_data.requestId }}</td>
+                    <td>{{ response_data.status }}</td>
+                    <td>{{ response_data.externalReference }}</td>
+                    <td>{{ response_data.id }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% elif error_message %}
+        <div class="alert alert-danger mt-5">
+            <h4 class="alert-heading">Error</h4>
+            <p>{{ error_message }}</p>
+        </div>
+    {% endif %}
+{% endblock %}

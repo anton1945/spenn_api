@@ -1,0 +1,52 @@
+{% extends 'api_app/base.html' %}
+
+{% load bootstrap_filters %}
+
+{% block title %}Check Status{% endblock %}
+
+{% block content %}
+    <h1>Check Payment Request Status</h1>
+    <form method="post" class="mt-4 form-bordered">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.request_id.label_tag }}<br>
+            {{ form.request_id|add_class:"form-control" }}
+        </div>
+        <button type="submit" class="btn btn-primary">Check Status</button>
+    </form>
+
+    {% if status_data %}
+        <h2 class="mt-5">Status Data</h2>
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Request ID</th>
+                    <th>Status</th>
+                    <th>Timestamp Created</th>
+                    <th>Phone Number</th>
+                    <th>Message</th>
+                    <th>Amount</th>
+                    <th>External Reference</th>
+                    <th>Transaction Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ status_data.requestGuid }}</td>
+                    <td>{{ status_data.requestStatus }}</td>
+                    <td>{{ status_data.timestampCreated }}</td>
+                    <td>{{ status_data.phoneNumber }}</td>
+                    <td>{{ status_data.message }}</td>
+                    <td>{{ status_data.amount }}</td>
+                    <td>{{ status_data.externalReference }}</td>
+                    <td>{{ status_data.transactionStatus }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% elif error_message %}
+        <div class="alert alert-danger mt-5">
+            <h4 class="alert-heading">Error</h4>
+            <p>{{ error_message }}</p>
+        </div>
+    {% endif %}
+{% endblock %}

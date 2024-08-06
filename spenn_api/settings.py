@@ -100,9 +100,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'spenn_api',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'xqYLihSbXh',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 

@@ -11,6 +11,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegisterForm, UserLoginForm
+from django.core.paginator import Paginator
 
 def register(request):
     if request.method == 'POST':
@@ -51,8 +52,18 @@ def generate_random_sha256():
 
 @login_required
 def dashboard(request):
-    transactions = Transaction.objects.all()
-    return render(request, 'api_app/dashboard.html', {'transactions': transactions})
+    transactions = Transaction.objects.all().order_by('-id')
+
+    # Paginate with 10 items per page
+    paginator = Paginator(transactions, 5)  # Show 5 transactions per page
+
+    # Get the page number from the request
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    #return render(request, 'api_app/dashboard.html', {'transactions': transactions})
+    # Pass the page_obj to the template
+    return render(request, 'api_app/dashboard.html', {'page_obj': page_obj})
 
 @login_required
 def transaction_request(request):
@@ -69,12 +80,12 @@ def transaction_request(request):
             url = 'https://uat-businessapi.spenn.com/api/Partner/transaction/request'
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer eyJhbG...NrEQ41w'  # Replace with your actual bearer token
+                'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjZBNzNBNTA3RUY2RDM0M0IyMjNGMkVCRUE3MTg4M0I2ODA5ODgwRDEiLCJ4NXQiOiJhbk9sQi05dE5Ec2lQeTYtcHhpRHRvQ1lnTkUiLCJ0eXAiOiJhdCtqd3QifQ.eyJzdWIiOiI3OWY0ZGJkNy01YTY4LTRlZWYtOTk1Zi05MTE2NTNlMjRjOTEiLCJuYW1lIjoiamFtZXMuYW50b24xOTQ1QGdtYWlsLmNvbSIsInR5cGUiOiJ1c2VyIiwidXNlckd1aWQiOiI2NTFiYjNlMi0wYzI3LTRkMTUtOWNjMi0zMWM2MzFhZjZlNTYiLCJ0b2tlbklkIjoiYTVjMWUwZDgtMGZlOS00OWRlLWI1YjEtMTY0NTU5MTk1NGU3Iiwib2lfcHJzdCI6IlNwZW5uQnVzaW5lc3NBcGlLZXkiLCJjbGllbnRfaWQiOiJTcGVubkJ1c2luZXNzQXBpS2V5IiwiYXVkIjoiU3Blbm5CdXNpbmVzcyIsImp0aSI6IjhkNTY4Nzc3LTRhYWEtNDMxZC1hZThjLWJkNjczNjhjYzZlZiIsImV4cCI6MTcyMjk1MTc5OSwiaXNzIjoiaHR0cHM6Ly91YXQtaWRzcnYuc3Blbm4uY29tLyIsImlhdCI6MTcyMjg2NTM5OX0.jOHFn2H-5ghpxFA4HrogPhNgvhF2azHXCbbMMzobsTrdtPV-xIyiImbknlty059f_hqdRnsXyO8CZNe3y87R95dwxRVwVAh-8efZgrTvfMped6WEb0Ls_xQqEfGVq3YZRM1Jn8xqRM_f9R_Ui1oKAGOPml3lmkHQS3juxqeYzBKa7YXfleUU1VYhMVMPLvTq7wevVPrWcBZ_ka_0VFXXDNJ0mtNvUt9OGLiOr60NAq0xWBNhToYR_XYpu8LZZRAX6jLpkg64cx89XZEfVat0SuG39-6ai4AV6BFT0DbC_FFqbFURfkNWSHHr1WyB_GCpOozpJkWp-dp47qE2X5jI_Q'  # Replace with your actual bearer token
             }
             callback_url = request.build_absolute_uri('/api/callback/')
             payload = {
                 "phoneNumber": transaction.phone_number,
-                "amount": transaction.amount,
+                "amount": float(transaction.amount),
                 "message": transaction.message,
                 "callbackUrl": callback_url,
                 "externalReference": transaction.external_reference
@@ -117,7 +128,7 @@ def check_status(request):
             url = f"https://uat-businessapi.spenn.com/api/Partner/transaction/request/{request_id}/status"
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbG...NrEQ41w"
+                "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjZBNzNBNTA3RUY2RDM0M0IyMjNGMkVCRUE3MTg4M0I2ODA5ODgwRDEiLCJ4NXQiOiJhbk9sQi05dE5Ec2lQeTYtcHhpRHRvQ1lnTkUiLCJ0eXAiOiJhdCtqd3QifQ.eyJzdWIiOiI3OWY0ZGJkNy01YTY4LTRlZWYtOTk1Zi05MTE2NTNlMjRjOTEiLCJuYW1lIjoiamFtZXMuYW50b24xOTQ1QGdtYWlsLmNvbSIsInR5cGUiOiJ1c2VyIiwidXNlckd1aWQiOiI2NTFiYjNlMi0wYzI3LTRkMTUtOWNjMi0zMWM2MzFhZjZlNTYiLCJ0b2tlbklkIjoiYTVjMWUwZDgtMGZlOS00OWRlLWI1YjEtMTY0NTU5MTk1NGU3Iiwib2lfcHJzdCI6IlNwZW5uQnVzaW5lc3NBcGlLZXkiLCJjbGllbnRfaWQiOiJTcGVubkJ1c2luZXNzQXBpS2V5IiwiYXVkIjoiU3Blbm5CdXNpbmVzcyIsImp0aSI6IjhkNTY4Nzc3LTRhYWEtNDMxZC1hZThjLWJkNjczNjhjYzZlZiIsImV4cCI6MTcyMjk1MTc5OSwiaXNzIjoiaHR0cHM6Ly91YXQtaWRzcnYuc3Blbm4uY29tLyIsImlhdCI6MTcyMjg2NTM5OX0.jOHFn2H-5ghpxFA4HrogPhNgvhF2azHXCbbMMzobsTrdtPV-xIyiImbknlty059f_hqdRnsXyO8CZNe3y87R95dwxRVwVAh-8efZgrTvfMped6WEb0Ls_xQqEfGVq3YZRM1Jn8xqRM_f9R_Ui1oKAGOPml3lmkHQS3juxqeYzBKa7YXfleUU1VYhMVMPLvTq7wevVPrWcBZ_ka_0VFXXDNJ0mtNvUt9OGLiOr60NAq0xWBNhToYR_XYpu8LZZRAX6jLpkg64cx89XZEfVat0SuG39-6ai4AV6BFT0DbC_FFqbFURfkNWSHHr1WyB_GCpOozpJkWp-dp47qE2X5jI_Q"
             }
 
             response = requests.get(url, headers=headers)
